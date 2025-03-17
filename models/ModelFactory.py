@@ -48,5 +48,5 @@ class ModelFactory:
     def get_models(self):
         return self.models
 
-mk = ModelFactory()
-mk.load_models()
+#mk = ModelFactory()
+#mk.load_models()
