@@ -40,22 +40,22 @@ class SimpleNNModel(BaseModel):
         return {"epochs": self.epochs, "learning_rate": self.lr}
 
     def train(self, data: list, labels: list, params: dict[str, object]):
-        epochs = params.get("epochs")
-        learning_rate = params.get("learning_rate")
-        self.lr = learning_rate
-        self.epochs = epochs
-        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
+        if "learning_rate" in params:
+            self.lr = params.get("learning_rate")
+        if "epochs" in params:
+            self.epochs = params.get("epochs")
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
         X_train = torch.tensor(data, dtype=torch.float32)
         y_train = torch.tensor(labels, dtype=torch.float32).view(-1, 1)
 
-        for epoch in range(epochs):
+        for epoch in range(self.epochs):
             self.optimizer.zero_grad()
             outputs = self.model(X_train)
             loss = self.criterion(outputs, y_train)
             loss.backward()
             self.optimizer.step()
-            print(f"Epoch [{epoch + 1}/{epochs}], Loss: {loss.item()}")
+            print(f"Epoch [{self.epochs + 1}/{self.epochs}], Loss: {loss.item()}")
 
     def predict(self, data: list):
         X_test = torch.tensor(data, dtype=torch.float32)

@@ -15,8 +15,10 @@ class LogisticRegressionModel(BaseModel):
         return {"C": self.C, "max_iter": self.max_iter}  # 逻辑回归默认参数
 
     def train(self, data: list, labels: list, params: Dict[str, Any]):
-        self.C = params.get("C")
-        self.max_iter = params.get("max_iter")
+        if "C" in params:
+            self.C = params.get("C")
+        if "max_iter" in params:
+            self.max_iter = params.get("max_iter")
         self.model.set_params(**params)
         self.model.fit(np.array(data), np.array(labels))
         print("Logistic Regression Model trained successfully.")
