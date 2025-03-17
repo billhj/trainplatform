@@ -2,19 +2,27 @@ from BaseModel import BaseModel
 import numpy as np
 
 class LinearRegressionModel(BaseModel):
+    def __init__(self):
+        self.lr = 0.01
+        self.epochs = 100
+        self.batch_size = 32
+
     @property
     def default_params(self) -> dict[str, object]:
         return {
-            "learning_rate": 0.01,
-            "epochs": 100,
-            "batch_size": 32
+            "learning_rate": self.lr,
+            "epochs": self.epochs,
+            "batch_size": self.batch_size
         }
 
     def train(self, data: list, labels: list, params: dict[str, object]):
         # 提取参数
-        learning_rate = params.get("learning_rate", 0.01)
-        epochs = params.get("epochs", 100)
-        batch_size = params.get("batch_size", 32)
+        learning_rate = params.get("learning_rate")
+        epochs = params.get("epochs")
+        batch_size = params.get("batch_size")
+        self.lr = learning_rate
+        self.epochs = epochs
+        self.batch_size = batch_size
 
         # 转换数据为 numpy 数组
         X = np.array(data).reshape(-1, len(data[0]))

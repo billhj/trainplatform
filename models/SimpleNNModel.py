@@ -40,8 +40,8 @@ class SimpleNNModel(BaseModel):
         return {"epochs": self.epochs, "learning_rate": self.lr}
 
     def train(self, data: list, labels: list, params: dict[str, object]):
-        epochs = params.get("epochs", 10)
-        learning_rate = params.get("learning_rate", 0.01)
+        epochs = params.get("epochs")
+        learning_rate = params.get("learning_rate")
         self.lr = learning_rate
         self.epochs = epochs
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
