@@ -78,6 +78,8 @@ class LSTMModel(BaseModel):
         self.criterion = nn.MSELoss()  # nn.CrossEntropyLoss()#nn.BCELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.batch_size = 32
+        self.model = LSTM(input_size=self.input_size, hidden_size=self.hidden_size, num_layers=self.num_layers,
+                          output_size=self.output_size, dropout=self.dropout)
 
     @property
     def default_params(self) -> Dict[str, Any]:
