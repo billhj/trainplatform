@@ -14,9 +14,9 @@ class SimpleNNModel(BaseModel):
             nn.Linear(self.input_features, self.middle_features),
             nn.ReLU(),
             nn.Linear(self.middle_features, self.output_features),
-            nn.Sigmoid()
+            #nn.Sigmoid()
         )
-        self.criterion = nn.BCELoss()
+        self.criterion = nn.MSELoss()#nn.CrossEntropyLoss()#nn.BCELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
     def define_model(self, input_features, middle_features, output_features, lr = 0.01, epochs = 100):
@@ -29,9 +29,9 @@ class SimpleNNModel(BaseModel):
             nn.Linear(self.input_features, self.middle_features),
             nn.ReLU(),
             nn.Linear(self.middle_features, self.output_features),
-            nn.Sigmoid()
+            #nn.Sigmoid()
         )
-        self.criterion = nn.BCELoss()
+        self.criterion = nn.MSELoss()#nn.CrossEntropyLoss()#nn.BCELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
 
@@ -44,6 +44,13 @@ class SimpleNNModel(BaseModel):
             self.lr = params.get("learning_rate")
         if "epochs" in params:
             self.epochs = params.get("epochs")
+        if "input_features" in params:
+            self.input_features = params.get("input_features")
+        if "middle_features" in params:
+            self.middle_features = params.get("middle_features")
+        if "output_features" in params:
+            self.output_features = params.get("output_features")
+
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
 
         X_train = torch.tensor(data, dtype=torch.float32)
@@ -55,10 +62,39 @@ class SimpleNNModel(BaseModel):
             loss = self.criterion(outputs, y_train)
             loss.backward()
             self.optimizer.step()
-            print(f"Epoch [{self.epochs + 1}/{self.epochs}], Loss: {loss.item()}")
+            if epoch % 100 == 0:
+                print(f"Epoch [{epoch + 1}/{self.epochs}], Loss: {loss.item()}")
 
     def predict(self, data: list):
         X_test = torch.tensor(data, dtype=torch.float32)
         with torch.no_grad():
             predictions = self.model(X_test).numpy().tolist()
         return predictions
+
+
+
+"""
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+from models.SimpleNNModel import SimpleNNModel
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = SimpleNNModel()
+model.define_model(4,10,1)
+model.train(X_train, y_train, params={'learning_rate': 0.01, 'epochs': 5000})
+predictions = model.predict(X_test)
+predictions = np.round(predictions)
+accuracy = accuracy_score(y_test, predictions)
+print(f'Accuracy: {accuracy:.2f}')
+from sklearn.metrics import classification_report
+report = classification_report(y_test, predictions)
+print(report)
+"""

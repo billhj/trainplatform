@@ -1,4 +1,6 @@
 import importlib
+import pickle
+from typing import Any
 
 def load_model(model_name: str):
     try:
@@ -11,6 +13,18 @@ def load_model(model_name: str):
         print(f"ImportError: {e}")
         #raise HTTPException(status_code=404, detail="Model not found") from e
 
+def save_pickle_model(model_name: str, model: Any):
+    import pickle
+    with open(f"saved_models/{model_name}.pkl", "wb") as f:
+        pickle.dump(model, f)
+
+def load_pickle_model(model_name: str):
+    try:
+        with open(f"saved_models/{model_name}.pkl", "rb") as f:
+            model = pickle.load(f)
+            return model
+    except (IOError) as e:
+        print(f"load_pickle_modelError: {e}")
 
 
 #model = load_model('LinearRegressionModel')
