@@ -1,8 +1,5 @@
 import importlib
 
-from models.LinearRegressionModel import LinearRegressionModel
-
-
 def load_model(model_name: str):
     try:
         print(model_name)
@@ -19,7 +16,7 @@ def load_model(model_name: str):
 #model = load_model('LinearRegressionModel')
 #print(model.default_params)
 
-modelnames = ['LinearRegressionModel', 'LogisticRegressionModel']
+modelnames = ['LinearRegressionModel', 'LogisticRegressionModel', 'SimpleNNModel']
 
 
 class ModelFactory:

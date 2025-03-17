@@ -1,7 +1,8 @@
+from BaseModel import BaseModel
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from typing import Dict, Any
-from BaseModel import BaseModel
+
 
 class LogisticRegressionModel(BaseModel):
     def __init__(self):
