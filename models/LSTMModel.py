@@ -168,7 +168,7 @@ class LSTMModel(BaseModel):
 
             # 计算平均测试损失
             test_loss /= len(test_loader)
-            if epoch % 1000 == 0:
+            if epoch % 100 == 0:
                 # 打印训练和测试损失
                 print(f"Epoch [{epoch + 1}/{self.epochs}], Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
 
