@@ -32,7 +32,7 @@ class LSTM(nn.Module):
             batch_first=True,  # 输入数据的形状为 (batch_size, seq_len, input_size)
             dropout=dropout if num_layers > 1 else 0  # 仅在多层 LSTM 时使用 dropout
         )
-
+        self.batch_norm = nn.BatchNorm1d(hidden_size)
         # 全连接层，将 LSTM 的输出映射到目标输出维度
         self.fc = nn.Linear(hidden_size, output_size)
 
@@ -56,7 +56,7 @@ class LSTM(nn.Module):
         #h_n = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         #c_n = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         output, (h_n, c_n) = self.lstm(x)
-
+        output = self.batch_norm(output)
         # 只取最后一个时间步的隐藏状态
         #last_hidden_state = output[:, -1, :]
         #似乎不用做切片
