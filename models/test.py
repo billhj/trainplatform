@@ -1,5 +1,8 @@
 #from ModelFactory import ModelFactory
 import numpy as np
+
+from models.LSTMModel import LSTMModel
+
 #mk = ModelFactory()
 #mk.load_models()
 
@@ -54,3 +57,12 @@ predictions = model.predict(X_test)
 accuracy = accuracy_score(y_test, predictions)
 print(f'Accuracy: {accuracy:.2f}')
 """
+import pandas as pd
+data_raw = pd.read_excel('../datasets/2019.xlsx')
+data_load = data_raw.iloc[:,1:].values
+input_sequences = data_load[:,:-1]
+output_sequences = data_load[:,-1]#.flatten().tolist()
+
+model = LSTMModel()
+model.train(input_sequences, output_sequences, params={'learning_rate': 0.01, 'epochs': 5000, 'input_size': 7,'output_size': 1 })
+print("finshed training")

@@ -5,7 +5,7 @@ from models.BaseModel import BaseModel
 from typing import Dict, Any
 import torch
 import torch.nn as nn
-
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -52,11 +52,15 @@ class LSTM(nn.Module):
         # LSTM 的输出包含两个部分：
         # 1. output: 每个时间步的隐藏状态，形状为 (batch_size, seq_len, hidden_size)
         # 2. (h_n, c_n): 最后一个时间步的隐藏状态和细胞状态
+
+        #h_n = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
+        #c_n = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(x.device)
         output, (h_n, c_n) = self.lstm(x)
 
         # 只取最后一个时间步的隐藏状态
-        last_hidden_state = output[:, -1, :]
-
+        #last_hidden_state = output[:, -1, :]
+        #似乎不用做切片
+        last_hidden_state = output
         # 应用 dropout
         last_hidden_state = self.dropout(last_hidden_state)
 
@@ -75,11 +79,11 @@ class LSTMModel(BaseModel):
         self.num_layers = 1
         self.output_size = 1
         self.dropout = 0.2
-        self.criterion = nn.MSELoss()  # nn.CrossEntropyLoss()#nn.BCELoss()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.batch_size = 32
         self.model = LSTM(input_size=self.input_size, hidden_size=self.hidden_size, num_layers=self.num_layers,
                           output_size=self.output_size, dropout=self.dropout)
+        self.criterion = nn.MSELoss()  # nn.CrossEntropyLoss()#nn.BCELoss()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
     @property
     def default_params(self) -> Dict[str, Any]:
@@ -104,10 +108,6 @@ class LSTMModel(BaseModel):
         if "batch_size" in params:
             self.batch_size = params.get("batch_size")
 
-        self.model = LSTM(input_size=self.input_size, hidden_size=self.hidden_size, num_layers=self.num_layers, output_size=self.output_size, dropout=self.dropout)
-        self.criterion = nn.MSELoss()  # nn.CrossEntropyLoss()#nn.BCELoss()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
-
         X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, random_state=42)
         # 转换为 PyTorch 的 Tensor
         X_train = torch.tensor(X_train, dtype=torch.float32)
@@ -120,6 +120,16 @@ class LSTMModel(BaseModel):
         train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
         test_loader = DataLoader(test_dataset, batch_size=self.batch_size, shuffle=False)
 
+        self.input_size = X_train.shape[-1]
+        if y_train.ndim > 1:
+            self.output_size = y_train.shape[-1]
+        else:
+            self.output_size = 1
+        self.hidden_size = self.hidden_size if self.hidden_size > self.input_size else self.input_size
+        self.model = LSTM(input_size=self.input_size, hidden_size=self.hidden_size, num_layers=self.num_layers,
+                          output_size=self.output_size, dropout=self.dropout)
+        self.criterion = nn.MSELoss()  # nn.CrossEntropyLoss()#nn.BCELoss()
+        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         """
             训练 LSTM 模型。
 
@@ -158,8 +168,9 @@ class LSTMModel(BaseModel):
 
             # 计算平均测试损失
             test_loss /= len(test_loader)
-            # 打印训练和测试损失
-            print(f"Epoch [{epoch + 1}/{self.epochs}], Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
+            if epoch % 1000 == 0:
+                # 打印训练和测试损失
+                print(f"Epoch [{epoch + 1}/{self.epochs}], Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
 
     def predict(self, data: list):
         outputs = self.model(data)
