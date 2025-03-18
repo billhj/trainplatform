@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from torch.utils.data import TensorDataset, DataLoader
 
 from models.BaseModel import BaseModel
@@ -84,6 +85,7 @@ class LSTMModel(BaseModel):
                           output_size=self.output_size, dropout=self.dropout)
         self.criterion = nn.MSELoss()  # nn.CrossEntropyLoss()#nn.BCELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.scaler = StandardScaler()
 
     @property
     def default_params(self) -> Dict[str, Any]:
@@ -109,10 +111,14 @@ class LSTMModel(BaseModel):
             self.batch_size = params.get("batch_size")
 
         X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, random_state=42)
+        # 拟合归一化器到训练数据
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        X_test_scaled = self.scaler.transform(X_test)
+
         # 转换为 PyTorch 的 Tensor
-        X_train = torch.tensor(X_train, dtype=torch.float32)
+        X_train = torch.tensor(X_train_scaled, dtype=torch.float32)
         y_train = torch.tensor(y_train, dtype=torch.float32)
-        X_test = torch.tensor(X_test, dtype=torch.float32)
+        X_test = torch.tensor(X_test_scaled, dtype=torch.float32)
         y_test = torch.tensor(y_test, dtype=torch.float32)
         # 创建 DataLoader
         train_dataset = TensorDataset(X_train, y_train)
@@ -173,5 +179,5 @@ class LSTMModel(BaseModel):
                 print(f"Epoch [{epoch + 1}/{self.epochs}], Train Loss: {train_loss:.4f}, Test Loss: {test_loss:.4f}")
 
     def predict(self, data: list):
-        outputs = self.model(data)
+        outputs = self.model(self.scaler.transform(data))
         return outputs
