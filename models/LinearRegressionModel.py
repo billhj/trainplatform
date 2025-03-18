@@ -1,6 +1,7 @@
 from BaseModel import BaseModel
 import numpy as np
 
+
 class LinearRegressionModel(BaseModel):
     def __init__(self):
         self.lr = 0.01
@@ -50,3 +51,29 @@ class LinearRegressionModel(BaseModel):
         X = np.array(data).reshape(-1, len(data[0]))
         y_pred = np.dot(X, self.weights) + self.bias
         return y_pred.tolist()
+
+"""
+import pandas as pd
+from sklearn.datasets import load_diabetes  #糖尿病数据
+from sklearn.model_selection import train_test_split  #用于将数据集划分为训练集和测试集
+from sklearn.linear_model import LinearRegression  #模型
+from sklearn.metrics import accuracy_score  #用于计算模型的准确率
+from sklearn.metrics import mean_squared_error  #用于计算均方差数据
+
+diabetes = load_diabetes()  #加载糖尿病数据
+X = diabetes.data
+y = diabetes.target
+
+print(X[0:10],'\n')  # 输出前十行看看效果
+
+
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+
+model = LinearRegressionModel()
+model.train(X_train, y_train, params={'lr': 0.001, 'epochs': 10000, 'batch_size': 32})
+predictions = model.predict(X_test)
+# 计算均方误差
+mse = mean_squared_error(y_test, predictions)
+print(f"Mean Squared Error: {mse}")
+"""
